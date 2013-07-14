@@ -55,6 +55,18 @@ ThreadWatcher =
     $.event 'AddMenuEntry', entry
     $.on entry.el, 'click', ThreadWatcher.cb.openAll
 
+    # `Check 404'd threads` entry
+    entry =
+      type: 'thread watcher'
+      el: $.el 'a',
+        textContent: 'Check 404\'d threads'
+        href: 'javascript:;'
+      open: ->
+        (if $('div:not(.dead-thread)', ThreadWatcher.list) then $.rmClass else $.addClass) @el, 'disabled'
+        true
+    $.event 'AddMenuEntry', entry
+    $.on entry.el, 'click', ThreadWatcher.cb.checkThreads
+
     # `Prune 404'd threads` entry
     entry =
       type: 'thread watcher'
@@ -110,6 +122,10 @@ ThreadWatcher =
       for a in $$ 'a[title]', ThreadWatcher.list
         $.open a.href
       $.event 'CloseMenu'
+    checkThreads: ->
+      return if $.hasClass @, 'disabled'
+      # XXX need visual feedback
+      ThreadWatcher.fetchAllStatus()
     pruneDeads: ->
       return if $.hasClass @, 'disabled'
       for {boardID, threadID, data} in ThreadWatcher.getAll()
@@ -137,6 +153,24 @@ ThreadWatcher =
       {thread} = e.detail
       return unless ThreadWatcher.db.get {boardID: thread.board.ID, threadID: thread.ID}
       ThreadWatcher.add thread
+
+  fetchAllStatus: ->
+    for thread in ThreadWatcher.getAll()
+      ThreadWatcher.fetchStatus thread
+    return
+  fetchStatus: ({boardID, threadID, data}) ->
+    return if data.isDead
+    $.ajax "//api.4chan.org/#{boardID}/res/#{threadID}.json",
+      onload: ->
+        return unless @status is 404
+        if Conf['Auto Prune']
+          ThreadWatcher.rm boardID, threadID
+        else
+          data.isDead = true
+          ThreadWatcher.db.set {boardID, threadID, val: data}
+        ThreadWatcher.refresh()
+    ,
+      type: 'head'
 
   getAll: ->
     all = []
@@ -170,7 +204,7 @@ ThreadWatcher =
     for {boardID, threadID, data} in ThreadWatcher.getAll()
       nodes.push ThreadWatcher.makeLine boardID, threadID, data
 
-    list = ThreadWatcher.dialog.lastElementChild
+    {list} = ThreadWatcher
     $.rmAll list
     $.add list, nodes
 
