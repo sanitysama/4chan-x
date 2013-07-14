@@ -9,6 +9,10 @@
  - The current thread is now highlighted in the list of watched threads.
  - Watching the current thread can be done in the Header's menu too.
 
+### 3.5.7 - *2013-07-13*
+
+- Drop Opera <15 support.
+
 ### 3.5.6 - *2013-07-02*
 
 - Fix flag filtering on /sp/ and /int/.
