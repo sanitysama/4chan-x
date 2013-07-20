@@ -74,8 +74,8 @@ QR =
     QR.cleanNotifications()
     d.activeElement.blur()
     $.rmClass QR.nodes.el, 'dump'
-    for i in QR.posts
-      QR.posts[0].rm()
+    for post in QR.posts.splice 0, QR.posts.length, new QR.post true
+      post.delete()
     QR.cooldown.auto = false
     QR.status()
   focusin: ->
@@ -115,7 +115,8 @@ QR =
 
   status: ->
     return unless QR.nodes
-    if g.DEAD
+    {thread} = QR.posts[0]
+    if thread isnt 'new' and g.threads["#{g.BOARD}.#{thread}"].isDead
       value    = 404
       disabled = true
       QR.cooldown.auto = false
@@ -389,7 +390,7 @@ QR =
   openFileInput: ->
     QR.nodes.fileInput.click()
   fileInput: (files) ->
-    if @ instanceof Element #or files instanceof Event # file input
+    if files instanceof Event # file input
       files = [@files...]
       QR.nodes.fileInput.value = null # Don't hold the files from being modified on windows
     {length} = files
@@ -493,13 +494,16 @@ QR =
       @select() if select
       @unlock()
     rm: ->
-      $.rm @nodes.el
+      @delete()
       index = QR.posts.indexOf @
       if QR.posts.length is 1
         new QR.post true
       else if @ is QR.selected
         (QR.posts[index-1] or QR.posts[index+1]).select()
       QR.posts.splice index, 1
+      QR.status()
+    delete: ->
+      $.rm @nodes.el
       URL.revokeObjectURL @URL
     lock: (lock=true) ->
       @isLocked = lock
@@ -536,15 +540,18 @@ QR =
       if input.type is 'checkbox'
         @spoiler = input.checked
         return
-      {value} = input
-      @[input.dataset.name] = value
-      return if input.nodeName isnt 'TEXTAREA'
-      @nodes.span.textContent = value
-      QR.characterCount()
-      # Disable auto-posting if you're typing in the first post
-      # during the last 5 seconds of the cooldown.
-      if QR.cooldown.auto and @ is QR.posts[0] and 0 < QR.cooldown.seconds <= 5
-        QR.cooldown.auto = false
+      {name}  = input.dataset
+      @[name] = input.value
+      switch name
+        when 'thread'
+          QR.status()
+        when 'com'
+          @nodes.span.textContent = @com
+          QR.characterCount()
+          # Disable auto-posting if you're typing in the first post
+          # during the last 5 seconds of the cooldown.
+          if QR.cooldown.auto and @ is QR.posts[0] and 0 < QR.cooldown.seconds <= 5
+            QR.cooldown.auto = false
     forceSave: ->
       return unless @ is QR.selected
       # Do this in case people use extensions
@@ -652,6 +659,7 @@ QR =
       (if oldIndex < newIndex then $.after else $.before) @, el
       post = QR.posts.splice(oldIndex, 1)[0]
       QR.posts.splice newIndex, 0, post
+      QR.status()
 
   captcha:
     init: ->
@@ -683,8 +691,8 @@ QR =
 
       $.on imgContainer, 'click',   @reload.bind @
       $.on input,        'keydown', @keydown.bind @
-      $.get 'captchas', [], (item) =>
-        @sync item['captchas']
+      $.get 'captchas', [], ({captchas}) =>
+        @sync captchas
       $.sync 'captchas', @sync
       # start with an uncached captcha
       @reload()
@@ -697,7 +705,8 @@ QR =
 
       $.addClass QR.nodes.el, 'has-captcha'
       $.after QR.nodes.com.parentNode, [imgContainer, input]
-    sync: (@captchas) ->
+    sync: (captchas) ->
+      QR.captcha.captchas = captchas
       QR.captcha.count()
     getOne: ->
       @clear()
