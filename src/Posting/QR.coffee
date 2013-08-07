@@ -959,7 +959,9 @@ QR =
       recaptcha_challenge_field: challenge
       recaptcha_response_field:  response
 
-    callbacks =
+    options =
+      responseType: 'document'
+      withCredentials: true
       onload: QR.response
       onerror: ->
         # Connection error, or
@@ -973,8 +975,7 @@ QR =
           Connection error. You may have been <a href=//www.4chan.org/banned target=_blank>banned</a>.
           [<a href="https://github.com/MayhemYDG/4chan-x/wiki/FAQ#what-does-connection-error-you-may-have-been-banned-mean" target=_blank>FAQ</a>]
           """
-    opts =
-      cred: true
+    extra =
       form: $.formData postData
       upCallbacks:
         onload: ->
@@ -988,7 +989,7 @@ QR =
           QR.req.progress = "#{Math.round e.loaded / e.total * 100}%"
           QR.status()
 
-    QR.req = $.ajax $.id('postForm').parentNode.action, callbacks, opts
+    QR.req = $.ajax $.id('postForm').parentNode.action, options, extra
     # Starting to upload might take some time.
     # Provide some feedback that we're starting to submit.
     QR.req.uploadStartTime = Date.now()
@@ -1002,20 +1003,23 @@ QR =
     post = QR.posts[0]
     post.unlock()
 
-    tmpDoc = d.implementation.createHTMLDocument ''
-    tmpDoc.documentElement.innerHTML = req.response
-    if ban  = $ '.banType', tmpDoc # banned/warning
-      board = $('.board', tmpDoc).innerHTML
+    resDoc  = req.response
+    if ban  = $ '.banType', resDoc # banned/warning
+      board = $('.board', resDoc).innerHTML
       err   = $.el 'span', innerHTML:
         if ban.textContent.toLowerCase() is 'banned'
-          "You are banned on #{board}! ;_;<br>" +
-          "Click <a href=//www.4chan.org/banned target=_blank>here</a> to see the reason."
+          """
+          You are banned on #{board}! ;_;<br>
+          Click <a href=//www.4chan.org/banned target=_blank>here</a> to see the reason.
+          """
         else
-          "You were issued a warning on #{board} as #{$('.nameBlock', tmpDoc).innerHTML}.<br>" +
-          "Reason: #{$('.reason', tmpDoc).innerHTML}"
-    else if err = tmpDoc.getElementById 'errmsg' # error!
+          """
+          You were issued a warning on #{board} as #{$('.nameBlock', resDoc).innerHTML}.<br>
+          Reason: #{$('.reason', resDoc).innerHTML}
+          """
+    else if err = resDoc.getElementById 'errmsg' # error!
       $('a', err)?.target = '_blank' # duplicate image link
-    else if tmpDoc.title isnt 'Post successful!'
+    else if resDoc.title isnt 'Post successful!'
       err = 'Connection error with sys.4chan.org.'
     else if req.status isnt 200
       err = "Error #{req.statusText} (#{req.status})"
@@ -1049,7 +1053,7 @@ QR =
       QR.error err
       return
 
-    h1 = $ 'h1', tmpDoc
+    h1 = $ 'h1', resDoc
     QR.cleanNotifications()
     QR.notifications.push new Notification 'success', h1.textContent, 5
 
