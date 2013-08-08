@@ -34,12 +34,6 @@ ThreadWatcher =
     $.on toggler, 'click', ThreadWatcher.cb.toggle
     $.before $('input', @OP.nodes.post), toggler
 
-    return if g.VIEW isnt 'thread' or !Conf['Auto Watch']
-    $.get 'AutoWatch', 0, ({AutoWatch}) =>
-      return if AutoWatch isnt @ID
-      ThreadWatcher.add @
-      $.delete 'AutoWatch'
-
   menuInit: ->
     ThreadWatcher.menu = new UI.Menu 'thread watcher'
 
@@ -113,6 +107,12 @@ ThreadWatcher =
     return unless Main.isThisPageLegit()
     ThreadWatcher.refresh()
     $.add d.body, ThreadWatcher.dialog
+
+    return unless Conf['Auto Watch']
+    $.get 'AutoWatch', 0, ({AutoWatch}) =>
+      return unless thread = g.BOARD.thread[AutoWatch]
+      ThreadWatcher.add thread
+      $.delete 'AutoWatch'
 
   cb:
     menuToggle: (e) ->
