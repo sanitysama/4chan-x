@@ -114,6 +114,7 @@ Main =
     initFeature 'Thread Watcher',           ThreadWatcher
     initFeature 'Index Navigation',         Nav
     initFeature 'Keybinds',                 Keybinds
+    initFeature 'Show Dice Roll',           Dice
     # c.timeEnd 'All initializations'
 
     $.on d, 'AddCallback', Main.addCallback
