@@ -109,8 +109,8 @@ ThreadWatcher =
     $.add d.body, ThreadWatcher.dialog
 
     return unless Conf['Auto Watch']
-    $.get 'AutoWatch', 0, ({AutoWatch}) =>
-      return unless thread = g.BOARD.thread[AutoWatch]
+    $.get 'AutoWatch', 0, ({AutoWatch}) ->
+      return unless thread = g.BOARD.threads[AutoWatch]
       ThreadWatcher.add thread
       $.delete 'AutoWatch'
 
@@ -128,8 +128,7 @@ ThreadWatcher =
       ThreadWatcher.fetchAllStatus()
     pruneDeads: ->
       return if $.hasClass @, 'disabled'
-      for {boardID, threadID, data} in ThreadWatcher.getAll()
-        continue unless data.isDead
+      for {boardID, threadID, data} in ThreadWatcher.getAll() when data.isDead
         delete ThreadWatcher.db.data.boards[boardID][threadID]
         ThreadWatcher.db.deleteIfEmpty {boardID}
       ThreadWatcher.db.save()
@@ -138,7 +137,7 @@ ThreadWatcher =
     toggle: ->
       ThreadWatcher.toggle Get.postFromNode(@).thread
     rm: ->
-      [boardID, threadID] = @parentNode.dataset.full-i-d.split '.'
+      [boardID, threadID] = @parentNode.dataset.fullID.split '.'
       ThreadWatcher.rm boardID, +threadID
     post: (e) ->
       {board, postID, threadID} = e.detail
@@ -148,10 +147,9 @@ ThreadWatcher =
       else if Conf['Auto Watch Reply']
         ThreadWatcher.add board.threads[threadID]
     threadUpdate: (e) ->
-      # Update 404 status.
-      return unless e.detail[404]
       {thread} = e.detail
-      return unless ThreadWatcher.db.get {boardID: thread.board.ID, threadID: thread.ID}
+      return unless e.detail[404] and ThreadWatcher.db.get {boardID: thread.board.ID, threadID: thread.ID}
+      # Update 404 status.
       ThreadWatcher.add thread
 
   fetchAllStatus: ->
@@ -162,7 +160,7 @@ ThreadWatcher =
     return if data.isDead
     $.ajax "//api.4chan.org/#{boardID}/res/#{threadID}.json",
       onload: ->
-        return unless @status is 404
+        return if @status isnt 404
         if Conf['Auto Prune']
           ThreadWatcher.rm boardID, threadID
         else
@@ -171,6 +169,7 @@ ThreadWatcher =
         ThreadWatcher.refresh()
     ,
       type: 'head'
+      whenModified: true
 
   getAll: ->
     all = []
