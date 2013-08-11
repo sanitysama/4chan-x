@@ -16,7 +16,6 @@
   margin: 0;
   padding: 2px 4px 3px;
   outline: none;
-  transition: color .25s, border-color .25s, -webkit-flex .25s;
   transition: color .25s, border-color .25s, flex .25s;
 }
 .field::-moz-placeholder,
@@ -118,7 +117,6 @@ a[href="javascript:;"] {
 }
 #header-bar {
   border-width: 0;
-  display: -webkit-flex;
   display: flex;
   padding: 3px 4px 4px;
   position: relative;
@@ -136,7 +134,6 @@ a[href="javascript:;"] {
   border-bottom: 6px solid;
 }
 #board-list {
-  -webkit-flex: 1;
   flex: 1;
   text-align: center;
 }
@@ -265,7 +262,6 @@ a[href="javascript:;"] {
 }
 #overlay {
   background-color: rgba(0, 0, 0, .5);
-  display: -webkit-flex;
   display: flex;
   position: fixed;
   top: 0;
@@ -283,13 +279,10 @@ a[href="javascript:;"] {
   max-width: 100%;
   margin: auto;
   padding: 3px;
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-direction: column;
   flex-direction: column;
 }
 #fourchanx-settings > nav {
-  display: -webkit-flex;
   display: flex;
   padding: 2px 2px 0;
 }
@@ -301,14 +294,12 @@ a[href="javascript:;"] {
   padding: 2px;
 }
 .sections-list {
-  -webkit-flex: 1;
   flex: 1;
 }
 .tab-selected {
   font-weight: 700;
 }
 .section-container {
-  -webkit-flex: 1;
   flex: 1;
   position: relative;
 }
@@ -589,15 +580,11 @@ a.hide-announcement {
 }
 #qr > div {
   min-width: 300px;
-  display: -webkit-flex;
   display: flex;
-  -webkit-align-items: center;
   align-items: center;
 }
 #qr .move {
-  -webkit-align-self: stretch;
   align-self: stretch;
-  -webkit-flex: 1;
   flex: 1;
 }
 #qr select {
@@ -616,22 +603,17 @@ a.hide-announcement {
   padding: 0 3px;
 }
 #qr > form {
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-direction: column;
   flex-direction: column;
 }
 .persona {
-  display: -webkit-flex;
   display: flex;
 }
 .persona .field {
-  -webkit-flex: 1;
   flex: 1;
 }
 .persona .field:hover,
 .persona .field:focus {
-  -webkit-flex: 3;
   flex: 3;
 }
 #dump-button {
@@ -809,15 +791,11 @@ a.hide-announcement {
   display: none;
 }
 #file-n-submit {
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-direction: row;
   flex-direction: row;
-  -webkit-align-items: center;
   align-items: center;
 }
 #qr-no-file, #qr-filename-container {
-  -webkit-flex: 1;
   flex: 1;
 }
 #qr-filename-container {
@@ -843,7 +821,6 @@ a.hide-announcement {
 }
 #file-n-submit input[type='submit'] {
   min-width: 40px;
-  -webkit-order: 1;
   order: 1;
 }
 
@@ -862,10 +839,8 @@ a.hide-announcement {
 }
 #menu {
   border-bottom: 0;
-  display: -webkit-flex;
   display: flex;
   margin: 2px 0;
-  -webkit-flex-direction: column;
   flex-direction: column;
   position: absolute;
   outline: none;
@@ -896,9 +871,7 @@ a.hide-announcement {
 }
 .submenu {
   border-bottom: 0;
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-direction: column;
   flex-direction: column;
   position: absolute;
   margin: -1px 0;
