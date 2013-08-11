@@ -138,7 +138,7 @@ ThreadWatcher =
     toggle: ->
       ThreadWatcher.toggle Get.postFromNode(@).thread
     rm: ->
-      [boardID, threadID] = @parentNode.dataset.fullid.split '.'
+      [boardID, threadID] = @parentNode.dataset.full-i-d.split '.'
       ThreadWatcher.rm boardID, +threadID
     post: (e) ->
       {board, postID, threadID} = e.detail
@@ -195,7 +195,7 @@ ThreadWatcher =
       title: data.excerpt
 
     div = $.el 'div'
-    div.setAttribute 'data-fullid', "#{boardID}.#{threadID}"
+    div.dataset.fullID = "#{boardID}.#{threadID}"
     $.addClass div, 'dead-thread' if data.isDead
     $.add div, [x, $.tn(' '), link]
     div
@@ -210,7 +210,7 @@ ThreadWatcher =
 
     if g.VIEW is 'thread'
       {entryEl} = ThreadWatcher
-      if div = $ "div[data-fullid='#{g.BOARD}.#{g.THREADID}']", list
+      if div = $ "div[data-full-i-d='#{g.BOARD}.#{g.THREADID}']", list
         $.addClass div, 'current'
         $.addClass entryEl, 'unwatch-thread'
         $.rmClass  entryEl, 'watch-thread'
